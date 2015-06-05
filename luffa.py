@@ -1,4 +1,5 @@
 import json
+import re
 import traceback
 from bottle import default_app, get, post, request, HTTPError
 from urllib.request import Request, urlopen
@@ -23,9 +24,10 @@ def broadcast(team):
         return ''
 
     # Build up message payload
+    text = re.sub(r'\<([@#])([^\|]+)\|([^\>]+)\>', r'\1\3', data.get('text'))
     message = {
         "username": "{} ({})".format(data.get('user_name'), settings[team]['slug']),
-        "text": data.get('text'),
+        "text": text,
     }
 
     for site, info in settings.items():
