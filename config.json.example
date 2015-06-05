@@ -1,0 +1,7 @@
+{
+    "example": {
+        "slug": "Example",
+        "token": "LoremIpsumDonorAmet",
+        "publish_hook": "https://hooks.slack.com/services/LoremIpsum/DonorAmet"
+    }
+}
