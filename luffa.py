@@ -31,7 +31,7 @@ def broadcast(team):
         if site == team:
             continue    # Skip ourselves
 
-        query = Request(info['publish_hook'], data=json.dumps(message).encode())
+        query = Request(info['publish_hook'], data=json.dumps(message, ensure_ascii=False).encode('utf-8'))
         query.add_header('Content-Type', 'application/json')
 
         try:
