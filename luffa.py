@@ -1,4 +1,5 @@
 import json
+import traceback
 from bottle import default_app, get, post, request, HTTPError
 from urllib.request import Request, urlopen
 
@@ -16,6 +17,10 @@ def broadcast(team):
     if team not in settings or request.forms.get('token') != settings[team]['token']:
         return HTTPError(status=401)
 
+    # Skip bot messages
+    if request.forms.get('user_name') == 'slackbot':
+        return ''
+
     # Build up message payload
     message = {
         "username": "{} ({})".format(request.forms.get('user_name'), settings[team]['slug']),
@@ -26,12 +31,13 @@ def broadcast(team):
         if site == team:
             continue    # Skip ourselves
 
-        query = Request(info['publish_hook'], data=json.dumps(message))
+        query = Request(info['publish_hook'], data=json.dumps(message).encode())
         query.add_header('Content-Type', 'application/json')
 
         try:
             urlopen(query)
         except:
+            traceback.print_exc()
             return HTTPError(status=502)
 
     return ''
