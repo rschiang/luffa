@@ -3,7 +3,7 @@ from bottle import default_app, get, post, request, HTTPError
 from urllib.request import Request, urlopen
 
 def get_settings():
-    with open('config.json') as f:
+    with open('config.json', encoding='utf-8') as f:
         return json.load(f)
 
 @get('/')
