@@ -1,5 +1,5 @@
 import json
-from bottle import get, post, request, HTTPError
+from bottle import default_app, get, post, request, HTTPError
 from urllib.request import Request, urlopen
 
 def get_settings():
@@ -35,3 +35,5 @@ def broadcast(team):
             return HTTPError(status=502)
 
     return ''
+
+application = default_app()
