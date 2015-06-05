@@ -14,17 +14,18 @@ def index():
 @post('/broadcast/<team>')
 def broadcast(team):
     settings = get_settings()
-    if team not in settings or request.forms.get('token') != settings[team]['token']:
+    data = request.forms.decode()
+    if team not in settings or data.get('token') != settings[team]['token']:
         return HTTPError(status=401)
 
     # Skip bot messages
-    if request.forms.get('user_name') == 'slackbot':
+    if data.get('user_name') == 'slackbot':
         return ''
 
     # Build up message payload
     message = {
-        "username": "{} ({})".format(request.forms.get('user_name'), settings[team]['slug']),
-        "text": request.forms.get('text'),
+        "username": "{} ({})".format(data.get('user_name'), settings[team]['slug']),
+        "text": data.get('text'),
     }
 
     for site, info in settings.items():
