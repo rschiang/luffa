@@ -2,7 +2,7 @@ import json
 import re
 import traceback
 from bottle import default_app, get, post, request, HTTPError
-from slack import Slacker
+from slacker import Slacker
 from urllib.request import Request, urlopen
 
 def get_settings():
