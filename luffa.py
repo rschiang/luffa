@@ -23,7 +23,7 @@ def broadcast(team):
     # Build up message payload
     text = data.get('text')
     username = data.get('user_name')
-    avatar = get_user(team, data.get('user_id'))['profile']['image_192'],
+    avatar = get_user(team, data.get('user_id'))['profile']['image_192']
 
     for site, info in settings.items():
         if site == team:
