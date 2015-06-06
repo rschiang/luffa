@@ -2,12 +2,8 @@ import json
 import re
 import traceback
 from bottle import default_app, get, post, request, HTTPError
-from slacker import Slacker
 from urllib.request import Request, urlopen
-
-def get_settings():
-    with open('config.json', encoding='utf-8') as f:
-        return json.load(f)
+from .utils import get_channel, get_settings, get_user, translate_user
 
 @get('/')
 def index():
@@ -25,29 +21,26 @@ def broadcast(team):
         return ''
 
     # Build up message payload
-    text = re.sub(r'\<([@#])([^\|]+)\|([^\>]+)\>', r'\1\3', data.get('text'))
-    message = {
-        "username": data.get('user_name'),
-        "text": text,
-    }
-
-    if 'query_token' in settings[team]:
-        slack = Slacker(settings[team]['query_token'])
-        try:
-            message['icon_url'] = slack.user.info(data.get('user_id'))['user']['profile']['image_192']
-        except:
-            pass
-
-        def find_user(match):
-            try:
-                return slack.user.info(match.group(1))['user']['name']
-            except:
-                return match.group(0)
-        text = re.sub(r'\<@([^\>]+)\>', find_user, text)
+    text = data.get('text')
+    username = data.get('user_name')
+    avatar = get_user(data.get('user_id'))['profile']['image_192'],
 
     for site, info in settings.items():
         if site == team:
             continue    # Skip ourselves
+
+        def replace_id(match):
+            if match.group(1) == '#':
+                return '#{}'.format(get_channel(team, match.group(2)))
+            else:
+                return translate_user(team, site, match.group(2))
+
+        text_translated = re.sub(r'<([@#])([^\|>]+)(\|[^>]+)?>', replace_id, text)
+        message = {
+            "username": username,
+            "icon_url": avatar,
+            "text": text_translated,
+        }
 
         query = Request(info['publish_hook'], data=json.dumps(message, ensure_ascii=False).encode('utf-8'))
         query.add_header('Content-Type', 'application/json')
